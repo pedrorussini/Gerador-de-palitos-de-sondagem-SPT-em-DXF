@@ -120,6 +120,7 @@ export default function App() {
     }
   };
 
+
   // Overlay das áreas já marcadas (apenas da página atual — simplificado)
   const areasOverlay = CAMPOS
     .filter(c => selecoes[c.id])
