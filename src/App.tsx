@@ -15,6 +15,9 @@ import {
 import { gerarDxfSondagem, downloadDxf, downloadZip } from './utils/dxfGenerator';
 import type { SondagemSPT, AreaSelecao } from './types/spt';
 
+// Fix: configurar worker pdf.js
+pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
+
 // Definição dos campos de seleção
 const CAMPOS = [
   { id: 'nome',   label: 'Nome da Sondagem', cor: '#e74c3c', icone: 'bi-tag',           dica: 'Ex: SP-35B-3-001' },
@@ -37,6 +40,7 @@ export default function App() {
   const [selecoes, setSelecoes]     = useState<Selecoes>({});
   const [sondagens, setSondagens]   = useState<SondagemSPT[]>([]);
   const [extraindo, setExtraindo]   = useState(false);
+  const [hachuraMap, setHachuraMap] = useState({});
   const zoom = 1.0;
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -84,16 +88,7 @@ export default function App() {
       const pag = (id: CampoId) => selecoes[id]!.pagina;
       const area = (id: CampoId) => selecoes[id]!.area;
 
-      // DEBUG — remover depois
-const testProfs = await extrairProfundidades(pdfDoc, selecoes.profs!.pagina, selecoes.profs!.area, zoom);
-const testNspts = await extrairNSPT(pdfDoc, selecoes.nspt!.pagina, selecoes.nspt!.area, zoom);
-const testDescs = await extrairDescricao(pdfDoc, selecoes.desc!.pagina, selecoes.desc!.area, zoom);
-toast.info(`Debug — Profs: ${JSON.stringify(testProfs.slice(0,5))} | NSPT count: ${testNspts.length} | Desc count: ${testDescs.length}`);
-console.log('PROFS:', testProfs);
-console.log('NSPTS:', testNspts);
-console.log('DESCS:', testDescs);
-
-const [nome, cota, na, profs, nspts, descs, origs] = await Promise.all([
+      const [nome, cota, na, profs, nspts, descs, origs] = await Promise.all([
         extrairNome(pdfDoc,  pag('nome'),   area('nome'),   zoom),
         extrairCota(pdfDoc,  pag('cota'),   area('cota'),   zoom),
         extrairNA(pdfDoc,    pag('na'),     area('na'),     zoom),
@@ -114,6 +109,7 @@ const [nome, cota, na, profs, nspts, descs, origs] = await Promise.all([
       };
 
       setSondagens(s => [...s.filter(x => x.nome !== nova.nome), nova]);
+      setHachuraMap(m => ({ ...m, [nova.nome]: true }));
       toast.success(`✅ ${metros.length} metro(s) extraído(s) de ${nome}`);
       setSelecoes({});
       setCampoAtivo('nome');
@@ -241,7 +237,7 @@ const [nome, cota, na, profs, nspts, descs, origs] = await Promise.all([
               <div className="d-flex justify-content-between align-items-center mb-2">
                 <h6 className="mb-0">{sondagens.length} sondagem(ns)</h6>
                 <button className="btn btn-success btn-sm"
-                  onClick={() => downloadZip(sondagens, true)}>
+                  onClick={() => downloadZip(sondagens, hachuraMap)}>
                   <i className="bi bi-file-zip me-1"></i>Baixar ZIP
                 </button>
               </div>
@@ -250,11 +246,13 @@ const [nome, cota, na, profs, nspts, descs, origs] = await Promise.all([
                 <div key={i}>
                   <TabelaRevisao
                     sondagem={s}
+                    hachura={hachuraMap[s.nome] ?? true}
+                    onHachuraChange={v => setHachuraMap(m => ({ ...m, [s.nome]: v }))}
                     onChange={nova => setSondagens(ss => ss.map((x, j) => j === i ? nova : x))}
                   />
                   <div className="d-flex gap-2 mb-3">
                     <button className="btn btn-outline-primary btn-sm"
-                      onClick={() => downloadDxf(gerarDxfSondagem(s, true), `${s.nome}.dxf`)}>
+                      onClick={() => downloadDxf(gerarDxfSondagem(s, hachuraMap[s.nome] ?? true), `${s.nome}.dxf`)}>
                       <i className="bi bi-download me-1"></i>DXF — {s.nome}
                     </button>
                     <button className="btn btn-outline-danger btn-sm"

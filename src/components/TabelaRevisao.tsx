@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import  from 'react';
 import type { SondagemSPT, MetroSPT } from '../types/spt';
 
 interface Props {
   sondagem: SondagemSPT;
+  hachura: boolean;
+  onHachuraChange: (v: boolean) => void;
   onChange: (sondagem: SondagemSPT) => void;
 }
 
-export default function TabelaRevisao({ sondagem, onChange }: Props) {
-  const [hachura, setHachura] = useState(true);
+export default function TabelaRevisao({ sondagem, hachura, onHachuraChange, onChange }: Props) {
 
   const update = (campo: keyof SondagemSPT, valor: any) => {
     onChange({ ...sondagem, [campo]: valor });
@@ -49,7 +50,7 @@ export default function TabelaRevisao({ sondagem, onChange }: Props) {
         </span>
         <div className="form-check form-switch mb-0">
           <input className="form-check-input" type="checkbox" checked={hachura}
-            onChange={e => setHachura(e.target.checked)} id={`hach-${sondagem.nome}`} />
+            onChange={e => onHachuraChange(e.target.checked)} id={`hach-${sondagem.nome}`} />
           <label className="form-check-label small" htmlFor={`hach-${sondagem.nome}`}>Hachura</label>
         </div>
       </div>

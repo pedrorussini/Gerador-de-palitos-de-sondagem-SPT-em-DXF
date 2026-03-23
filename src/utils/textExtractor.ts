@@ -92,7 +92,7 @@ export const extrairProfundidades = async (
   items.forEach((item: any) => {
     const str = item.str.trim();
     const v = parseInt(str);
-    if (!isNaN(v) && v >= 1 && v <= 50 && str === String(v)) {
+    if (!isNaN(v) && v >= 1 && v <= 100 && str === String(v)) {
       if (!vistos.has(v)) {
         vistos.add(v);
         profs.push({ prof: v, y: item.transform[5] });

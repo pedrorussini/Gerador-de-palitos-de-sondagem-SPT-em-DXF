@@ -97,7 +97,7 @@ export const gerarDxfSondagem = (sondagem: SondagemSPT, incluirHachura = true): 
     { point: point2d(X(PAL_XD), yTopo)  },
     { point: point2d(X(PAL_XD), yFundo) },
     { point: point2d(X(PAL_XE), yFundo) },
-  ], { layerName: lyPal.name });
+  ], { closed: true, layerName: lyPal.name });
 
   // ── NSPT por metro ──────────────────────────────────────────────────────
   metros.forEach(m => {
@@ -107,7 +107,7 @@ export const gerarDxfSondagem = (sondagem: SondagemSPT, incluirHachura = true): 
     // Linha de separação entre metros: x=4.4 → x=4.2 (na base)
     dxf.addLine(
       point3d(X(NSPT_X), ym, 0),
-      point3d(X(PAL_XC), ym, 0),
+      point3d(X(PAL_XE), ym, 0),
       { layerName: lyNspt.name }
     );
 
@@ -228,12 +228,12 @@ export const downloadDxf = (conteudo: string, nomeArquivo: string) => {
   URL.revokeObjectURL(url);
 };
 
-export const downloadZip = async (sondagens: SondagemSPT[], incluirHachura: boolean) => {
+export const downloadZip = async (sondagens: SondagemSPT[], hachuraMap: Record<string, boolean>) => {
   const JSZip = (await import('jszip')).default;
   const zip   = new JSZip();
   sondagens.forEach(s => {
     if (!s.metros.length) return;
-    zip.file(`${s.nome}.dxf`, gerarDxfSondagem(s, incluirHachura));
+    zip.file(`${s.nome}.dxf`, gerarDxfSondagem(s, hachuraMap[s.nome] ?? true));
   });
   const blob = await zip.generateAsync({ type: 'blob' });
   const url  = URL.createObjectURL(blob);

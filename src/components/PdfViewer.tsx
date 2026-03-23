@@ -49,6 +49,13 @@ export default function PdfViewer({ arquivo, onSelecionarArea, modoSelecao, corS
     });
   };
 
+
+  const handleMouseLeave = () => {
+    if (iniciou) {
+      setIniciou(false);
+      setSelecaoAtual(null);
+    }
+  };
   const handleMouseUp = (e: React.MouseEvent) => {
     if (!modoSelecao || !iniciou) return;
     const coords = getCoords(e);
@@ -92,6 +99,7 @@ export default function PdfViewer({ arquivo, onSelecionarArea, modoSelecao, corS
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseLeave}
         >
           <Document file={arquivo} onLoadSuccess={({ numPages }) => setNumPages(numPages)}>
             <Page pageNumber={pagina} scale={zoom} renderTextLayer={false} renderAnnotationLayer={false} />
