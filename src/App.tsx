@@ -40,7 +40,7 @@ export default function App() {
   const [selecoes, setSelecoes]     = useState<Selecoes>({});
   const [sondagens, setSondagens]   = useState<SondagemSPT[]>([]);
   const [extraindo, setExtraindo]   = useState(false);
-  const [hachuraMap, setHachuraMap] = useState({});
+  const [hachuraMap, setHachuraMap] = useState<Record<string, boolean>>({}); 
   const zoom = 1.0;
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({

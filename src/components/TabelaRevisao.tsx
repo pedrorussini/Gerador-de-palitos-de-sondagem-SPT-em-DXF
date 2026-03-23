@@ -1,4 +1,4 @@
-import  from 'react';
+
 import type { SondagemSPT, MetroSPT } from '../types/spt';
 
 interface Props {

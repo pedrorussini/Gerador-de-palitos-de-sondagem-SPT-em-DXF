@@ -97,7 +97,8 @@ export const gerarDxfSondagem = (sondagem: SondagemSPT, incluirHachura = true): 
     { point: point2d(X(PAL_XD), yTopo)  },
     { point: point2d(X(PAL_XD), yFundo) },
     { point: point2d(X(PAL_XE), yFundo) },
-  ], { closed: true, layerName: lyPal.name });
+    { point: point2d(X(PAL_XE), yTopo)  },
+  ], { layerName: lyPal.name });
 
   // ── NSPT por metro ──────────────────────────────────────────────────────
   metros.forEach(m => {
